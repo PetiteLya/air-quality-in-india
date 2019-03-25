@@ -26,11 +26,11 @@ df.drop(df[df['type'] == 'RIRUO'].index, inplace = True)
 
 df['year1'] = df['year']
 
-df1 = pd.pivot_table(df, index = ['year1','month','state','type'], values = ['year','rspm', 'spm', 'so2', 'no2'], aggfunc = np.mean, fill_value = 0)
+df = pd.pivot_table(df, index = ['year1','month','state','type'], values = ['year','rspm', 'spm', 'so2', 'no2'], aggfunc = np.mean, fill_value = 0)
 
-df1 = df1.round(decimals=2)
+df = df.round(decimals=2)
 
-df1.reset_index(level = [1,2,3], inplace = True)
+df.reset_index(level = [1,2,3], inplace = True)
 
 ######### Visualize data with Bokeh ##########
 
@@ -48,58 +48,58 @@ def update_plot(attr, old, new):
     if x == 'year':
         if s == 'All':
             new_data = {
-                'x': df1[x],
-                'y': df1[y],
-                'type':df1.type,
-                'state':df1.state,
-                'year':df1.year
+                'x': df[x],
+                'y': df[y],
+                'type':df.type,
+                'state':df.state,
+                'year':df.year
             }
 
         else:
             new_data = {
-                'x': df1[df1.state==s][x],
-                'y': df1[df1.state==s][y],
-                'type':df1[df1.state==s].type,
-                'state':df1[df1.state==s].state,
-                'year':df1[df1.state==s].year
+                'x': df[df.state==s][x],
+                'y': df[df.state==s][y],
+                'type':df[df.state==s].type,
+                'state':df[df.state==s].state,
+                'year':df[df.state==s].year
             }
 
 
     else:
         if s == 'All':
             new_data = {
-                'x': df1.loc[yr][x],
-                'y': df1.loc[yr][y],
-                'type':df1.loc[yr].type,
-                'state':df1.loc[yr].state,
-                'year':df1.loc[yr].year
+                'x': df.loc[yr][x],
+                'y': df.loc[yr][y],
+                'type':df.loc[yr].type,
+                'state':df.loc[yr].state,
+                'year':df.loc[yr].year
             }
 
         else:
             new_data = {
-                'x': df1[df1.state==s].loc[yr][x],
-                'y': df1[df1.state==s].loc[yr][y],
-                'type':df1[df1.state==s].loc[yr].type,
-                'state':df1[df1.state==s].loc[yr].state,
-                'year':df1[df1.state==s].loc[yr].year
+                'x': df[df.state==s].loc[yr][x],
+                'y': df[df.state==s].loc[yr][y],
+                'type':df[df.state==s].loc[yr].type,
+                'state':df[df.state==s].loc[yr].state,
+                'year':df[df.state==s].loc[yr].year
             }
 
-    p.x_range = Range1d(min(df1[x]), max(df1[x]))
-    p.y_range = Range1d(min(df1[y]), max(df1[y]))
+    p.x_range = Range1d(min(df[x]), max(df[x]))
+    p.y_range = Range1d(min(df[y]), max(df[y]))
 
     source.data = new_data
 
 # Make a color mapper: color_mapper
-type_list = df1.type.unique().tolist()
+type_list = df.type.unique().tolist()
 color_mapper = CategoricalColorMapper(factors=type_list, palette=Spectral6)
 
 # Define data source for plot
 source = ColumnDataSource(data={
-    'x': df1[df1.state=='Delhi'].year,
-    'y': df1[df1.state=='Delhi'].rspm,
-    'type':df1[df1.state=='Delhi'].type,
-    'state':df1[df1.state=='Delhi'].state,
-    'year':df1[df1.state=='Delhi'].year
+    'x': df[df.state=='Delhi'].year,
+    'y': df[df.state=='Delhi'].rspm,
+    'type':df[df.state=='Delhi'].type,
+    'state':df[df.state=='Delhi'].state,
+    'year':df[df.state=='Delhi'].year
 })
 
 # Initialize the plot
@@ -141,7 +141,7 @@ y_select = Select(
 y_select.on_change('value', update_plot)
 
 # Create a dropdown list for states
-states_list = ['All'] + df1.state.unique().tolist()
+states_list = ['All'] + df.state.unique().tolist()
 state_select = Select(
     options = states_list,
     value = 'Delhi',
