@@ -95,11 +95,11 @@ color_mapper = CategoricalColorMapper(factors=type_list, palette=Spectral6)
 
 # Define data source for plot
 source = ColumnDataSource(data={
-    'x': df1.loc['2012'].month,
-    'y': df1.loc['2012'].no2,
-    'type':df1.loc['2012'].type,
-    'state':df1.loc['2012'].state,
-    'year':df1.loc['2012'].year
+    'x': df1[df1.state=='Delhi'].year,
+    'y': df1[df1.state=='Delhi'].rspm,
+    'type':df1[df1.state=='Delhi'].type,
+    'state':df1[df1.state=='Delhi'].state,
+    'year':df1[df1.state=='Delhi'].year
 })
 
 # Initialize the plot
@@ -117,7 +117,7 @@ p.circle(x='x', y='y', fill_alpha=0.8, source=source, size = 10,
 p.legend.location = 'top_right'
 
 # Make a slider object for year
-slider = Slider(start = 1987, end = 2015, step = 1, value = 2012, title = 'Year')
+slider = Slider(start = 1987, end = 2015, step = 1, value = 2015, title = 'Year')
 
 # Attach the callback to the 'value' property of slider
 slider.on_change('value', update_plot)
@@ -125,7 +125,7 @@ slider.on_change('value', update_plot)
 # Create a dropdown Select widget for the x data: x_select
 x_select = Select(
     options=[ 'no2', 'so2', 'rspm', 'spm', 'month', 'year'],
-    value='month',
+    value='year',
     title='x-axis data'
 )
 # Attach the update_plot callback to the 'value' property of x_select
@@ -134,7 +134,7 @@ x_select.on_change('value', update_plot)
 # Create a dropdown Select widget for the y data: y_select
 y_select = Select(
     options=['no2', 'so2', 'rspm', 'spm'],
-    value='no2',
+    value='rspm',
     title='y-axis data'
 )
 # Attach the update_plot callback to the 'value' property of y_select
@@ -144,7 +144,7 @@ y_select.on_change('value', update_plot)
 states_list = ['All'] + df1.state.unique().tolist()
 state_select = Select(
     options = states_list,
-    value = 'All',
+    value = 'Delhi',
     title = 'State'
     )
 # Attach the update_plot callback to the 'value' property of x_select
