@@ -12,7 +12,6 @@ df = pd.read_csv('data.csv', index_col = 0,)
 
 df.dropna(subset=['year', 'type'], inplace = True)
 
-df['year'] = df['year'].astype(int)
 df.drop(columns = ['X', 'lon', 'lat','day', 'day_of_the_week','rspm'], inplace = True)
 df.rename(columns={'rspm_knn': 'rspm'}, inplace=True)
 
