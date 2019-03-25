@@ -2,7 +2,7 @@ import pandas as pd, numpy as np
 from bokeh.plotting import figure, show
 from bokeh.io import output_notebook
 from bokeh.layouts import layout, column, widgetbox, row
-from bokeh.models import ColumnDataSource, Div, CategoricalColorMapper, HoverTool
+from bokeh.models import ColumnDataSource, Div, CategoricalColorMapper, HoverTool, Range1d
 from bokeh.models.widgets import Slider, Select, TextInput
 from bokeh.io import curdoc
 from bokeh.palettes import Spectral6
@@ -24,7 +24,9 @@ df.replace(['Sensitive', 'Sensitive Areas'], 'Sensitive Area', inplace = True)
 
 df.drop(df[df['type'] == 'RIRUO'].index, inplace = True)
 
-df1 = pd.pivot_table(df, index = ['year','month','state','type'], values = ['rspm', 'spm', 'so2', 'no2'], aggfunc = np.mean, fill_value = 0)
+df['year1'] = df['year']
+
+df1 = pd.pivot_table(df, index = ['year1','month','state','type'], values = ['year','rspm', 'spm', 'so2', 'no2'], aggfunc = np.mean, fill_value = 0)
 
 df1 = df1.round(decimals=2)
 
@@ -43,33 +45,47 @@ def update_plot(attr, old, new):
     p.xaxis.axis_label = x
     p.yaxis.axis_label = y
 
-    if s == 'All':
-        new_data = {
-            'x': df1.loc[yr][x],
-            'y': df1.loc[yr][y],
-            'type':df1.loc[yr].type,
-            'state':df1.loc[yr].state
-        }
-        p.x_range.start = min(df1.loc[yr][x])
+    if x == 'year':
+        if s == 'All':
+            new_data = {
+                'x': df1[x],
+                'y': df1[y],
+                'type':df1.type,
+                'state':df1.state,
+                'year':df1.year
+            }
 
-        p.x_range.end = max(df1.loc[yr][x])
+        else:
+            new_data = {
+                'x': df1[df1.state==s][x],
+                'y': df1[df1.state==s][y],
+                'type':df1[df1.state==s].type,
+                'state':df1[df1.state==s].state,
+                'year':df1[df1.state==s].year
+            }
 
-        p.y_range.start = min(df1.loc[yr][y])
-        p.y_range.end = max(df1.loc[yr][y])
 
     else:
-        new_data = {
-            'x': df1[df1.state==s].loc[yr][x],
-            'y': df1[df1.state==s].loc[yr][y],
-            'type':df1[df1.state==s].loc[yr].type,
-            'state':df1[df1.state==s].loc[yr].state
-        }
+        if s == 'All':
+            new_data = {
+                'x': df1.loc[yr][x],
+                'y': df1.loc[yr][y],
+                'type':df1.loc[yr].type,
+                'state':df1.loc[yr].state,
+                'year':df1.loc[yr].year
+            }
 
-        p.x_range.start = min(df1[df1.state==s].loc[yr][x])
-        p.x_range.end = max(df1[df1.state==s].loc[yr][x])
+        else:
+            new_data = {
+                'x': df1[df1.state==s].loc[yr][x],
+                'y': df1[df1.state==s].loc[yr][y],
+                'type':df1[df1.state==s].loc[yr].type,
+                'state':df1[df1.state==s].loc[yr].state,
+                'year':df1[df1.state==s].loc[yr].year
+            }
 
-        p.y_range.start = min(df1[df1.state==s].loc[yr][y])
-        p.y_range.end = max(df1[df1.state==s].loc[yr][y])
+    p.x_range = Range1d(min(df1[x]), max(df1[x]))
+    p.y_range = Range1d(min(df1[y]), max(df1[y]))
 
     source.data = new_data
 
@@ -82,7 +98,8 @@ source = ColumnDataSource(data={
     'x': df1.loc['2012'].month,
     'y': df1.loc['2012'].no2,
     'type':df1.loc['2012'].type,
-    'state':df1.loc['2012'].state
+    'state':df1.loc['2012'].state,
+    'year':df1.loc['2012'].year
 })
 
 # Initialize the plot
@@ -107,7 +124,7 @@ slider.on_change('value', update_plot)
 
 # Create a dropdown Select widget for the x data: x_select
 x_select = Select(
-    options=[ 'no2', 'so2', 'rspm', 'spm', 'month'],
+    options=[ 'no2', 'so2', 'rspm', 'spm', 'month', 'year'],
     value='month',
     title='x-axis data'
 )
@@ -134,7 +151,7 @@ state_select = Select(
 state_select.on_change('value', update_plot)
 
 # Create a HoverTool object: hover
-hover = HoverTool(tooltips = [('State', '@state'), ('x,y', '($x,$y)')])
+hover = HoverTool(tooltips = [('State', '@state'),('Year', '@year'), ('x,y', '($x,$y)')])
 
 # Add the HoverTool object to figure p
 p.add_tools(hover)
