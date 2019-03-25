@@ -8,16 +8,15 @@ from bokeh.io import curdoc
 from bokeh.palettes import Spectral6
 
 ######### Prepare data for visualization ##########
-df = pd.read_csv('data_india_air_quality.csv', index_col = 6, parse_dates = True)
+df = pd.read_csv('data.csv', index_col = 0,)
 
 df.dropna(subset=['year', 'type'], inplace = True)
 
 df['year'] = df['year'].astype(int)
+df.drop(columns = ['X', 'lon', 'lat','day', 'day_of_the_week','rspm'], inplace = True)
+df.rename(columns={'rspm_knn': 'rspm'}, inplace=True)
 
-df['month'] = df['month'].astype(int)
-
-df.drop(columns = ['Unnamed: 0', 'lon', 'lat','day'], inplace = True)
-
+df.set_index('date', inplace = True)
 df.sort_index(inplace = True)
 
 df.replace(['Industrial', 'Industrial Areas'], 'Industrial Area', inplace = True)
@@ -31,21 +30,6 @@ df1 = pd.pivot_table(df, index = ['year','month','state','type'], values = ['rsp
 df1 = df1.round(decimals=2)
 
 df1.reset_index(level = [1,2,3], inplace = True)
-
-# df1['month'].replace(1, 'Jan', inplace = True)
-# df1['month'].replace(2, 'Feb', inplace = True)
-# df1['month'].replace(3, 'Mar', inplace = True)
-# df1['month'].replace(4, 'Apr', inplace = True)
-# df1['month'].replace(5, 'May', inplace = True)
-# df1['month'].replace(6, 'Jun', inplace = True)
-# df1['month'].replace(7, 'Jul', inplace = True)
-# df1['month'].replace(8, 'Aug', inplace = True)
-# df1['month'].replace(9, 'Sep', inplace = True)
-# df1['month'].replace(10, 'Oct', inplace = True)
-# df1['month'].replace(11, 'Nov', inplace = True)
-# df1['month'].replace(12, 'Dec', inplace = True)
-
-# month = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
 ######### Visualize data with Bokeh ##########
 
