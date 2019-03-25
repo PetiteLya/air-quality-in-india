@@ -103,7 +103,7 @@ source = ColumnDataSource(data={
 })
 
 # Initialize the plot
-p = figure(width = 1000, height = 700, x_axis_label = 'month', y_axis_label = 'no2')
+p = figure(width = 1000, height = 700, x_axis_label = 'year', y_axis_label = 'rspm')
 
 # Add title
 p.title.text = 'Air quality in India'
